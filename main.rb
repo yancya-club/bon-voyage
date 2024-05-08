@@ -21,7 +21,11 @@ files.map { |f|
   { visited_at:, latitude:, longitude:, altitude: }
 }.compact.to_json.tap do |positions_json|
   puts "Write to GCS..."
-  bucket.create_file(StringIO.new(positions_json), JSON_FILE_NAME)
+  bucket.create_file(
+    StringIO.new(positions_json),
+    JSON_FILE_NAME,
+    cache_control: "public, max-age=15"
+  )
 end
 
 puts "Done!"
