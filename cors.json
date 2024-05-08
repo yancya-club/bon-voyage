@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://bon-voyage.yancya.club", "http://localhost:8080"],
+    "method": ["GET"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

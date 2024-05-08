@@ -6,5 +6,19 @@
   </head>
   <body>
     <p>TBD</p>
+    <div id="main"></div>
   </body>
+  <script>
+    const url = "https://storage.cloud.google.com/yancya-club-bon-voyage/positions.json";
+    fetch(url, { mode: "cors" })
+      .then(response => response.json())
+      .then(data => {
+        const main = document.getElementById("main");
+        data.forEach(position => {
+          const p = document.createElement("p");
+          p.textContent = `${position.name} ${position.lat} ${position.lng}`;
+          main.appendChild(p);
+        });
+      });
+  </script>
 </html>
