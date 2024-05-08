@@ -15,7 +15,8 @@ files = bucket.files(prefix: PREFIX)
 files.map { |f|
   next if f.name.end_with?("/")
   puts "File: #{f.name} is processing..."
-  visited_at = Time.at(f.name.gsub(/\.txt$/, "").to_i / 1_000_000_000).to_s
+  unix_epoch = f.name.gsub(/^positions\//, "").gsub(/\.txt$/, "").to_i
+  visited_at = Time.at(unix_epoch / 1_000_000_000).to_s
   latitude, longitude, altitude = f.download.tap(&:rewind).read.split(",").map(&:to_f)
   { visited_at:, latitude:, longitude:, altitude: }
 }.compact.to_json.tap do |positions_json|

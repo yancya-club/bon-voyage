@@ -10,12 +10,6 @@
   </body>
   <script>
     const url = "https://storage.googleapis.com/yancya-club-bon-voyage/positions.json"
-    // {
-    //   "visited_at": "1970-01-01 00:00:00 +0000",
-    //   "latitude": 35.66298672414936,
-    //   "longitude": 139.7659892577597,
-    //   "altitude": 25.0739109993366
-    // }
     fetch(url, { mode: "cors" })
       .then(response => response.json())
       .then(data => {
