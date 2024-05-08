@@ -73,7 +73,7 @@ async function plotPositions(map) {
 
 async function initMap() {
   map = new Map(document.getElementById("main"), {
-    zoom: 7,
+    zoom: 5,
     mapId: "BON_VOYAGE_YANCYA_CLUB",
   });
 
