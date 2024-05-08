@@ -31,6 +31,15 @@ f({ key: "AIzaSyAqprQv4t2EE8M4pp_Sb_4CEOfLoiWf77s", v: "beta" });
 const { AdvancedMarkerView } = await google.maps.importLibrary("marker");
 const { Map } = await google.maps.importLibrary("maps");
 
+const intersectionObserver = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("drop");
+      intersectionObserver.unobserve(entry.target);
+    }
+  }
+});
+
 // Initialize and add the map
 let map;
 
@@ -43,22 +52,28 @@ async function plotPositions(map) {
       const footprint = document.createElement("img");
       footprint.src = data.length == index+1 ? "./yancya.png" : "./footprint.png";
       map.setCenter(latLng);
-      const marker = new AdvancedMarkerView({
+      const advancedMarkerView = new AdvancedMarkerView({
         map: map,
         position: latLng,
         content: footprint,
         title: position.visited_at,
       });
-      const delay = index * 0.5 + "s";
-      marker.element.style.setProperty("--delay-time", delay);
-      marker.element.style.opacity = ((index+1) / (data.length)) * 0.7 + 0.3
+      const element = advancedMarkerView.content;
+      element.style.opacity = 0;
+      element.addEventListener("animationend", (event) => {
+        element.classList.remove("drop");
+        element.style.opacity = ((index+1) / (data.length)) * 0.7 + 0.3
+      });
+      const delay = index * 0.1 + "s";
+      element.style.setProperty("--delay-time", delay);
+      intersectionObserver.observe(advancedMarkerView.content);
     });
   });
 }
 
 async function initMap() {
   map = new Map(document.getElementById("main"), {
-    zoom: 4,
+    zoom: 7,
     mapId: "BON_VOYAGE_YANCYA_CLUB",
   });
 
