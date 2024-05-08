@@ -7,17 +7,18 @@
   <body>
     <p>TBD</p>
     <div id="main"></div>
+    <div id="sub"></div>
   </body>
   <script>
     const url = "https://storage.googleapis.com/yancya-club-bon-voyage/positions.json"
     fetch(url, { mode: "cors" })
       .then(response => response.json())
       .then(data => {
-        const main = document.getElementById("main");
+        const sub = document.getElementById("sub");
         data.forEach(position => {
           const p = document.createElement("p");
           p.textContent = `${position.visited_at} ${position.latitude} ${position.longitude} ${position.altitude}`;
-          main.appendChild(p);
+          sub.appendChild(p);
         });
       });
   </script>
