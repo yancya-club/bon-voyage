@@ -64,7 +64,7 @@ async function plotPositions(map) {
         element.classList.remove("drop");
         element.style.opacity = ((index+1) / (data.length)) * 0.7 + 0.3
       });
-      const delay = index * 0.1 + "s";
+      const delay = index * 0.05 + "s";
       element.style.setProperty("--delay-time", delay);
       intersectionObserver.observe(advancedMarkerView.content);
     });
