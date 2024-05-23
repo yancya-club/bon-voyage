@@ -12,9 +12,9 @@ storage = Google::Cloud::Storage.new(project_id: PROJECT_ID)
 bucket = storage.bucket(BUCKET_NAME)
 files = bucket.files(prefix: PREFIX)
 
-files.map { |f|
+files.map.with_index { |f, i|
   next if f.name.end_with?("/")
-  puts "File: #{f.name} is processing..."
+  puts "File #{i}: #{f.name} is processing..."
   unix_epoch = f.name.gsub(/^positions\//, "").gsub(/\.txt$/, "").to_i
   visited_at = Time.at(unix_epoch / 1_000_000_000).to_s
   latitude, longitude, altitude = f.download.tap(&:rewind).read.split(",").map(&:to_f)
