@@ -44,9 +44,9 @@ const intersectionObserver = new IntersectionObserver((entries) => {
 let map;
 
 async function plotPositions(map) {
-  const url = "https://storage.googleapis.com/yancya-club-bon-voyage/positions.json"
+  const url = "./positions.json"
   const by_visited_at = (a, b) => a.visited_at == b.visited_at ? 0 : (a.visited_at > b.visited_at ? 1 : -1);
-  fetch(url, { mode: "cors" }).then(response => response.json()).then(data => {
+  fetch(url).then(response => response.json()).then(data => {
     data.sort(by_visited_at).forEach((position, index) => {
       const latLng = { lat: position.latitude, lng: position.longitude };
       const footprint = document.createElement("img");
