@@ -43,8 +43,47 @@ const intersectionObserver = new IntersectionObserver((entries) => {
 // Initialize and add the map
 let map;
 
-async function plotPositions(map) {
-  const url = "./positions.json"
+function showMessage(text) {
+  document.getElementById("message").textContent = text;
+}
+
+function renderJourneyList(journeys, currentSlug) {
+  const nav = document.getElementById("journeys");
+  nav.replaceChildren();
+  journeys.forEach(journey => {
+    const a = document.createElement("a");
+    a.href = `?journey=${encodeURIComponent(journey.slug)}`;
+    a.textContent = `${journey.title} (${journey.started_on} 〜 ${journey.finished_on})`;
+    if (journey.slug === currentSlug) {
+      a.classList.add("current");
+    }
+    nav.append(a);
+  });
+}
+
+async function resolveJourney() {
+  const journeys = await fetch("./journeys/index.json").then(response => response.json());
+  const by_started_on_desc = (a, b) => a.started_on == b.started_on ? 0 : (a.started_on < b.started_on ? 1 : -1);
+  const sorted = [...journeys].sort(by_started_on_desc);
+  const latest = sorted[0];
+  const requestedSlug = new URLSearchParams(location.search).get("journey");
+
+  let journey = latest;
+  if (requestedSlug) {
+    const found = journeys.find(j => j.slug === requestedSlug);
+    if (found) {
+      journey = found;
+    } else {
+      showMessage(`指定された旅（${requestedSlug}）は見つかりませんでした。最新の旅を表示します。`);
+    }
+  }
+
+  renderJourneyList(sorted, journey.slug);
+  return journey;
+}
+
+async function plotPositions(map, journey) {
+  const url = journey.data;
   const by_visited_at = (a, b) => a.visited_at == b.visited_at ? 0 : (a.visited_at > b.visited_at ? 1 : -1);
   fetch(url).then(response => response.json()).then(data => {
     data.sort(by_visited_at).forEach((position, index) => {
@@ -77,7 +116,8 @@ async function initMap() {
     mapId: "BON_VOYAGE_YANCYA_CLUB",
   });
 
-  await plotPositions(map);
+  const journey = await resolveJourney();
+  await plotPositions(map, journey);
 }
 
 initMap();
