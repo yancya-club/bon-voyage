@@ -8,9 +8,12 @@ https://bon-voyage.yancya.club の
 ## 構成
 
 - `docs/` … GitHub Pages で配信される本体（CNAME = bon-voyage.yancya.club）
-  - `positions.json` … 全足あとデータ。`visited_at` / `latitude` / `longitude` / `altitude` の配列
+  - `positions.json` … 全足あとデータ（現行 `main.js` が読む本番データ）。`visited_at` / `latitude` / `longitude` / `altitude` の配列
   - `main.js` … `./positions.json` を fetch して Google Maps (JS API) にマーカーを描画
-- `archive/positions/` … 元データのバックアップ。1地点 = 1ファイルで、ファイル名は `<ナノ秒 unix epoch>.txt`、中身は `緯度,経度,高度` の CSV 1行
+  - `journeys/` … 旅（journey）単位でデータを分割したレイアウト。複数journey対応のフロント実装（#8）で `main.js` から参照する予定。現時点では準備のみで `main.js` は未接続
+    - `index.json` … 旅の一覧メタデータ。配列の各要素は `slug`（安定ID。旅の開始日ベースで採番し、以後変更しない） / `title` / `started_on` / `finished_on`（いずれも `YYYY-MM-DD`） / `points`（地点数） / `data`（`positions.json` への相対パス）
+    - `<slug>/positions.json` … その旅の全足あとデータ（`docs/positions.json` と同一スキーマ）
+- `archive/journeys/<slug>/positions/` … 元データのバックアップ。旅ごとのディレクトリに分割。1地点 = 1ファイルで、ファイル名は `<ナノ秒 unix epoch>.txt`、中身は `緯度,経度,高度` の CSV 1行
 
 ## 歴史
 
