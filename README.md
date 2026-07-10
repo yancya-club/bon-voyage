@@ -3,17 +3,23 @@
 https://bon-voyage.yancya.club の
 ソースコード。
 
-2024-05-07 〜 2024-05-27 の旅の GPS 足あと（105地点）を Google Maps 上に表示する、静的なアーカイブサイト。旅はゴール済みで、今後データが増えることはない。
+複数の旅（journey）の GPS 足あとを Google Maps 上に表示する、静的なアーカイブサイト。現在は 2024-05-07 〜 2024-05-27 の旅（105地点）のみを収録。
 
 ## 構成
 
 - `docs/` … GitHub Pages で配信される本体（CNAME = bon-voyage.yancya.club）
-  - `positions.json` … 全足あとデータ（現行 `main.js` が読む本番データ）。`visited_at` / `latitude` / `longitude` / `altitude` の配列
-  - `main.js` … `./positions.json` を fetch して Google Maps (JS API) にマーカーを描画
-  - `journeys/` … 旅（journey）単位でデータを分割したレイアウト。複数journey対応のフロント実装（#8）で `main.js` から参照する予定。現時点では準備のみで `main.js` は未接続
+  - `main.js` … `?journey=<slug>` で指定された旅（省略時は最新の旅）のデータを `journeys/<slug>/positions.json` から fetch し、Google Maps (JS API) にマーカーを描画。存在しない slug が指定された場合はメッセージを表示して最新の旅にフォールバックする。ページ下部に旅の一覧ナビゲーションを表示する
+  - `journeys/` … 旅（journey）単位で分割されたデータ
     - `index.json` … 旅の一覧メタデータ。配列の各要素は `slug`（安定ID。旅の開始日ベースで採番し、以後変更しない） / `title` / `started_on` / `finished_on`（いずれも `YYYY-MM-DD`） / `points`（地点数） / `data`（`positions.json` への相対パス）
-    - `<slug>/positions.json` … その旅の全足あとデータ（`docs/positions.json` と同一スキーマ）
+    - `<slug>/positions.json` … その旅の全足あとデータ。`visited_at` / `latitude` / `longitude` / `altitude` の配列
 - `archive/journeys/<slug>/positions/` … 元データのバックアップ。旅ごとのディレクトリに分割。1地点 = 1ファイルで、ファイル名は `<ナノ秒 unix epoch>.txt`、中身は `緯度,経度,高度` の CSV 1行
+
+## 新しい旅を追加する手順
+
+1. `docs/journeys/<新しいslug>/positions.json` を配置する（slug は旅の開始日ベース、例 `2025-01-01`）
+2. `docs/journeys/index.json` に一覧メタデータを追記する
+3. 生データのバックアップを `archive/journeys/<新しいslug>/positions/` に配置する
+4. どの journey を既定表示にするかは `main.js` が `started_on` の降順で自動判定するため、特別な設定は不要
 
 ## 歴史
 
@@ -21,7 +27,7 @@ https://bon-voyage.yancya.club の
 
 ## GCP リソースの後片付け（オーナー実行用）
 
-データは `docs/positions.json` と `archive/positions/` に退避済みなので、以下は削除してよい。
+データは `docs/journeys/` と `archive/journeys/` に退避済みなので、以下は削除してよい。
 
 ```sh
 # Cloud Functions（Run Job を kick していたやつ）
@@ -35,3 +41,12 @@ gcloud storage rm -r gs://yancya-club-bon-voyage
 ```
 
 ※ Functions / Job の正確な名前・リージョンは削除前に `gcloud functions list` / `gcloud run jobs list` で確認のこと。
+
+## Google Maps API キーの制限（運用メモ）
+
+`docs/main.js` の Maps JavaScript API キーには以下の制限を設定済み（2026-07-10 確認・設定）:
+
+- アプリケーション制限（HTTP リファラー）: `https://*.yancya.club`, `http://localhost:8080/*`
+- API 制限: Maps JavaScript API (`maps-backend.googleapis.com`) のみ
+
+設定変更は `gcloud services api-keys describe <key>` で確認できる。ローカル確認時は `python3 -m http.server 8080` など、許可済みの `localhost:8080` を使うこと。
