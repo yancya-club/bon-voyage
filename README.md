@@ -23,24 +23,7 @@ https://bon-voyage.yancya.club の
 
 ## 歴史
 
-かつては iPhone のショートカットから GCS バケット `yancya-club-bon-voyage` の `positions/` に txt を投入し、Cloud Functions が Cloud Run Job を kick して `positions.json` を集計・再生成する構成だった（詳細は issue #1 と、このコミット以前の `main.rb` / `functions/` を参照）。旅の終了に伴い更新の仕組みは破棄し、アーカイブ配信のみの静的サイトに移行した。
-
-## GCP リソースの後片付け（オーナー実行用）
-
-データは `docs/journeys/` と `archive/journeys/` に退避済みなので、以下は削除してよい。
-
-```sh
-# Cloud Functions（Run Job を kick していたやつ）
-gcloud functions delete kick_run_jobs --project=yancya-club --region=asia-northeast1
-
-# Cloud Run Job（positions.json の集計）
-gcloud run jobs delete bon-voyage --project=yancya-club --region=asia-northeast1
-
-# GCS バケット（生データごと削除）
-gcloud storage rm -r gs://yancya-club-bon-voyage
-```
-
-※ Functions / Job の正確な名前・リージョンは削除前に `gcloud functions list` / `gcloud run jobs list` で確認のこと。
+かつては iPhone のショートカットから GCS バケット `yancya-club-bon-voyage` の `positions/` に txt を投入し、Cloud Functions（`kick-bon-voyage-json-builder`）が Cloud Run Job（`build-bon-voyage-yancya-club-posisions-json`）を kick して `positions.json` を集計・再生成する構成だった（詳細は issue #1 と、このコミット以前の `main.rb` / `functions/` を参照）。旅の終了に伴い更新の仕組みは破棄し、アーカイブ配信のみの静的サイトに移行した。GCP リソース（上記 Function / Run Job / GCS バケット、いずれも `us-central1`）は 2026-07-10 に削除済み。
 
 ## Google Maps API キーの制限（運用メモ）
 
